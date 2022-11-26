@@ -22,9 +22,11 @@ Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
+  // 获取 el 对象
   el = el && query(el)
 
   /* istanbul ignore if */
+  // el 不能挂载到body和html上面
   if (el === document.body || el === document.documentElement) {
     __DEV__ &&
       warn(
@@ -35,6 +37,7 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  // 如果没有传递render函数，则把template转换成render函数
   if (!options.render) {
     let template = options.template
     if (template) {

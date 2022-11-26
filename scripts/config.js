@@ -17,8 +17,11 @@ const banner =
 
 const aliases = require('./alias')
 const resolve = p => {
+  // 'web/entry-runtime-with-compiler.ts'
+  // 截取 web
   const base = p.split('/')[0]
   if (aliases[base]) {
+    // 路径拼接上 入口js文件名
     return path.resolve(aliases[base], p.slice(base.length + 1))
   } else {
     return path.resolve(__dirname, '../', p)
@@ -226,6 +229,7 @@ const builds = {
 }
 
 function genConfig(name) {
+  // 获取到name对应的对象
   const opts = builds[name]
   const isTargetingBrowser = !(
     opts.transpile === false || opts.format === 'cjs'
@@ -297,6 +301,7 @@ function genConfig(name) {
   return config
 }
 
+// 判断打包时是否有传入 TARGET 参数
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {

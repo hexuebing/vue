@@ -1,5 +1,6 @@
 const path = require('path')
 
+// __dirname 是当前文件所在的目录，../就是根目录，再拼接其他目录
 const resolve = p => path.resolve(__dirname, '../', p)
 
 module.exports = {
