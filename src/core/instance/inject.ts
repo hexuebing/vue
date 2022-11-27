@@ -28,9 +28,11 @@ export function initProvide(vm: Component) {
 }
 
 export function initInjections(vm: Component) {
+  // 将所有的inject里面的属性提取出来
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {
     toggleObserving(false)
+    // 遍历属性并设置为响应式
     Object.keys(result).forEach(key => {
       /* istanbul ignore else */
       if (__DEV__) {
@@ -57,6 +59,7 @@ export function resolveInject(
   if (inject) {
     // inject is :any because flow is not smart enough to figure out cached
     const result = Object.create(null)
+    // 拿到所有的keys
     const keys = hasSymbol ? Reflect.ownKeys(inject) : Object.keys(inject)
 
     for (let i = 0; i < keys.length; i++) {
@@ -64,6 +67,8 @@ export function resolveInject(
       // #6574 in case the inject object is observed...
       if (key === '__ob__') continue
       const provideKey = inject[key].from
+      
+      // 判断_provided是否有这个属性
       if (provideKey in vm._provided) {
         result[key] = vm._provided[provideKey]
       } else if ('default' in inject[key]) {

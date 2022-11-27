@@ -132,7 +132,9 @@ function initData(vm: Component) {
       )
   }
   // proxy data on instance
+  // 获取data中的所有属性
   const keys = Object.keys(data)
+  // 获取 props/methods 属性
   const props = vm.$options.props
   const methods = vm.$options.methods
   let i = keys.length
@@ -150,7 +152,7 @@ function initData(vm: Component) {
             `Use prop default value instead.`,
           vm
         )
-    } else if (!isReserved(key)) {
+    } else if (!isReserved(key)) { // 判断属性开头 _ / $
       proxy(vm, `_data`, key)
     }
   }
@@ -292,6 +294,7 @@ function initMethods(vm: Component, methods: Object) {
       if (props && hasOwn(props, key)) {
         warn(`Method "${key}" has already been defined as a prop.`, vm)
       }
+      // 判断methods是否 _ / $ 开头
       if (key in vm && isReserved(key)) {
         warn(
           `Method "${key}" conflicts with an existing Vue instance method. ` +
@@ -356,6 +359,7 @@ export function stateMixin(Vue: typeof Component) {
       warn(`$props is readonly.`, this)
     }
   }
+  // 初始化 $data 和 $props
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 

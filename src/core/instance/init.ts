@@ -14,6 +14,7 @@ import { EffectScope } from 'v3/reactivity/effectScope'
 let uid = 0
 
 export function initMixin(Vue: typeof Component) {
+  // 给Vue实例增加了 init() 方法
   Vue.prototype._init = function (options?: Record<string, any>) {
     const vm: Component = this
     // a uid
@@ -56,12 +57,21 @@ export function initMixin(Vue: typeof Component) {
     }
     // expose real self
     vm._self = vm
+    // 生命周期相关变量初始化
+    // $children/$parent/$root/$refs
     initLifecycle(vm)
+    // vm 的事件监听初始化，父组件的事件绑定到当前组件
     initEvents(vm)
+    // vm的 render 函数的初始化
+    // $slots/$scopedSlots/_c/$createElement/$attrs/$listeners
     initRender(vm)
+    // beforeCreate 生命周期钩子的回调
     callHook(vm, 'beforeCreate', undefined, false /* setContext */)
+    // 将inject的成员注入到vm上
     initInjections(vm) // resolve injections before data/props
+    // 初始化 vm的 _props/methods/_data/computed/watch
     initState(vm)
+    // 初始化 _provide,方便inject获取
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
 
@@ -72,6 +82,7 @@ export function initMixin(Vue: typeof Component) {
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 挂载
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
