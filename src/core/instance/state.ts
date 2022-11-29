@@ -57,6 +57,8 @@ export function initState(vm: Component) {
   initSetup(vm)
 
   if (opts.methods) initMethods(vm, opts.methods)
+
+  // 数据初始化
   if (opts.data) {
     initData(vm)
   } else {
@@ -157,6 +159,7 @@ function initData(vm: Component) {
     }
   }
   // observe data
+  // 将数据处理成响应式数据
   const ob = observe(data)
   ob && ob.vmCount++
 }

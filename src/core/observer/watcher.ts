@@ -112,6 +112,8 @@ export default class Watcher implements DepTarget {
     if (isFunction(expOrFn)) {
       this.getter = expOrFn
     } else {
+      // 如果是计算属性的 watcher 则走这里
+      // 例如 watch: {'person.name': fn}
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -131,10 +133,12 @@ export default class Watcher implements DepTarget {
    * Evaluate the getter, and re-collect dependencies.
    */
   get() {
+    // 将 watcher 实例赋值给Dep.target
     pushTarget(this)
     let value
     const vm = this.vm
     try {
+      // 也就是传入的 updateComponent 方法
       value = this.getter.call(vm, vm)
     } catch (e: any) {
       if (this.user) {
@@ -148,7 +152,9 @@ export default class Watcher implements DepTarget {
       if (this.deep) {
         traverse(value)
       }
+      // 将当前的watcher出栈
       popTarget()
+      // 清理dep
       this.cleanupDeps()
     }
     return value
@@ -163,6 +169,7 @@ export default class Watcher implements DepTarget {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
+        // 将实例添加到subs中
         dep.addSub(this)
       }
     }

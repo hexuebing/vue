@@ -58,6 +58,7 @@ export default class Dep {
 
   depend(info?: DebuggerEventExtraInfo) {
     if (Dep.target) {
+      // 添加到subs中
       Dep.target.addDep(this)
       if (__DEV__ && info && Dep.target.onTrack) {
         Dep.target.onTrack({
@@ -75,6 +76,7 @@ export default class Dep {
       // subs aren't sorted in scheduler if not running async
       // we need to sort them now to make sure they fire in correct
       // order
+      // 保证按照闯将顺序执行
       subs.sort((a, b) => a.id - b.id)
     }
     for (let i = 0, l = subs.length; i < l; i++) {
@@ -91,12 +93,15 @@ export default class Dep {
   }
 }
 
+// Dep.target 用来存 目前正在使用的 watcher， 是一个全局唯一，一次只能有一个watcher被使用
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
 Dep.target = null
 const targetStack: Array<DepTarget | null | undefined> = []
 
+
+// 父子组件嵌套的时候，将先处理子组件的watcher，处理完毕之后再让父组件watcher出栈
 export function pushTarget(target?: DepTarget | null) {
   targetStack.push(target)
   Dep.target = target

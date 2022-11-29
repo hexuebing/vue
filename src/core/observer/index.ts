@@ -52,10 +52,17 @@ export class Observer {
   constructor(public value: any, public shallow = false, public mock = false) {
     // this.value = value
     this.dep = mock ? mockDep : new Dep()
+    // 初始化实例的 vmCount 为 0
     this.vmCount = 0
+
+    // 将实例挂载到观察对象的 __ob__ 属性上
     def(value, '__ob__', this)
+
+    // 数组的响应式处理
     if (isArray(value)) {
       if (!mock) {
+
+        // 判断是否有__proto__属性，修改数组中的原有方法
         if (hasProto) {
           /* eslint-disable no-proto */
           ;(value as any).__proto__ = arrayMethods
@@ -68,6 +75,7 @@ export class Observer {
         }
       }
       if (!shallow) {
+        // 遍历数组中的元素，将所有元素转化为响应式的
         this.observeArray(value)
       }
     } else {
@@ -76,7 +84,9 @@ export class Observer {
        * getter/setters. This method should only be called when
        * value type is Object.
        */
+      // 获取对象的每一个属性
       const keys = Object.keys(value)
+      // 遍历每一个属性，设置为响应式数据
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i]
         defineReactive(value, key, NO_INIITIAL_VALUE, undefined, shallow, mock)
@@ -106,9 +116,11 @@ export function observe(
   shallow?: boolean,
   ssrMockReactivity?: boolean
 ): Observer | void {
+  // 如果 value 有 __ob__ 属性则返回
   if (value && hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     return value.__ob__
   }
+  // 判断是否可以做响应式处理
   if (
     shouldObserve &&
     (ssrMockReactivity || !isServerRendering()) &&
@@ -133,14 +145,17 @@ export function defineReactive(
   shallow?: boolean,
   mock?: boolean
 ) {
+  // 收集 创建依赖对象的实例
   const dep = new Dep()
 
+  // 获取obj的属性描述符
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
   }
 
   // cater for pre-defined getter/setters
+  // 预定义的存取器函数
   const getter = property && property.get
   const setter = property && property.set
   if (
@@ -150,13 +165,18 @@ export function defineReactive(
     val = obj[key]
   }
 
+  // 判断是否 递归观察子对象，并将子对象属性都转化成setter/getter，并返回
   let childOb = !shallow && observe(val, false, mock)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter() {
+      // 如果有自定义的getter，则返回自己的getter调用
       const value = getter ? getter.call(obj) : val
+
+      // 收集依赖，如果存在当前依赖目标，则建立依赖
       if (Dep.target) {
+        // 将watcher添加到subs数组中
         if (__DEV__) {
           dep.depend({
             target: obj,
@@ -166,8 +186,10 @@ export function defineReactive(
         } else {
           dep.depend()
         }
+        // 如果子观察目标存在，建立子对象的依赖关系
         if (childOb) {
           childOb.dep.depend()
+          // 如果属性是数组，则特殊处理收集数组对象依赖
           if (isArray(value)) {
             dependArray(value)
           }
@@ -183,9 +205,10 @@ export function defineReactive(
       if (__DEV__ && customSetter) {
         customSetter()
       }
+      // 如果 预定义setter存在，直接调用
       if (setter) {
         setter.call(obj, newVal)
-      } else if (getter) {
+      } else if (getter) { // 如果没有 setter 直接返回
         // #7981: for accessor properties without setter
         return
       } else if (!shallow && isRef(value) && !isRef(newVal)) {
@@ -194,6 +217,7 @@ export function defineReactive(
       } else {
         val = newVal
       }
+      // 如果新值是对象，那就将新值也调用observer
       childOb = !shallow && observe(newVal, false, mock)
       if (__DEV__) {
         dep.notify({
