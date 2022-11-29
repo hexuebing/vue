@@ -248,6 +248,7 @@ export function set(
   key: any,
   val: any
 ): any {
+  // 判断target是否为对象
   if (__DEV__ && (isUndef(target) || isPrimitive(target))) {
     warn(
       `Cannot set reactive property on undefined, null, or primitive value: ${target}`
@@ -257,9 +258,15 @@ export function set(
     __DEV__ && warn(`Set operation on key "${key}" failed: target is readonly.`)
     return
   }
+
+  // 获取target的observe对象
   const ob = (target as any).__ob__
+  
+  // 判断是否是数组，并且数组的索引是合法的
   if (isArray(target) && isValidArrayIndex(key)) {
     target.length = Math.max(target.length, key)
+
+    // 通过 splice 对key位置的元素进行替换，即可触发响应式
     target.splice(key, 1, val)
     // when mocking for SSR, array methods are not hijacked
     if (ob && !ob.shallow && ob.mock) {
@@ -267,10 +274,14 @@ export function set(
     }
     return val
   }
+
+  // 如果key在对象中存在则直接赋值
   if (key in target && !(key in Object.prototype)) {
     target[key] = val
     return val
   }
+
+  // 如果target是vue实例，或者 $data 则直接返回
   if ((target as any)._isVue || (ob && ob.vmCount)) {
     __DEV__ &&
       warn(
@@ -279,11 +290,17 @@ export function set(
       )
     return val
   }
+
+  // 如果observer 对象不存在，说明不是响应式对象直接赋值就行
   if (!ob) {
     target[key] = val
     return val
   }
+
+  // 把key设置为响应式属性
   defineReactive(ob.value, key, val, undefined, ob.shallow, ob.mock)
+
+  // 发送通知
   if (__DEV__) {
     ob.dep.notify({
       type: TriggerOpTypes.ADD,

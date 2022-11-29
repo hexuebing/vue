@@ -126,6 +126,7 @@ export default class Watcher implements DepTarget {
           )
       }
     }
+    // computed计算属性的watcher会设置这个lazy为true，在渲染的时候使用
     this.value = this.lazy ? undefined : this.get()
   }
 
@@ -229,6 +230,7 @@ export default class Watcher implements DepTarget {
         // set new value
         const oldValue = this.value
         this.value = value
+        // 是否是用户 watcher
         if (this.user) {
           const info = `callback for watcher "${this.expression}"`
           invokeWithErrorHandling(

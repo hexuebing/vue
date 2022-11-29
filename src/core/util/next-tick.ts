@@ -11,6 +11,7 @@ let pending = false
 
 function flushCallbacks() {
   pending = false
+  // 备份一份数组
   const copies = callbacks.slice(0)
   callbacks.length = 0
   for (let i = 0; i < copies.length; i++) {
@@ -38,6 +39,7 @@ let timerFunc
 // completely stops working after triggering a few times... so, if native
 // Promise is available, we will use it:
 /* istanbul ignore next, $flow-disable-line */
+// 优先使用微任务的方式执行，会降级为宏任务
 if (typeof Promise !== 'undefined' && isNative(Promise)) {
   const p = Promise.resolve()
   timerFunc = () => {
@@ -76,6 +78,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   // Technically it leverages the (macro) task queue,
   // but it is still a better choice than setTimeout.
   timerFunc = () => {
+    // 这个setImmediate 比setTimeout 性能好，setTimeout至少等4ms
     setImmediate(flushCallbacks)
   }
 } else {
@@ -93,9 +96,11 @@ export function nextTick<T>(cb: (this: T, ...args: any[]) => any, ctx: T): void
  */
 export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
   let _resolve
+  // 把 cb 加上异常处理存入到 callbacks 数组中
   callbacks.push(() => {
     if (cb) {
       try {
+        // 调用cb
         cb.call(ctx)
       } catch (e: any) {
         handleError(e, ctx, 'nextTick')
@@ -104,12 +109,14 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
       _resolve(ctx)
     }
   })
+  // 队列是否正在被处理
   if (!pending) {
     pending = true
     timerFunc()
   }
   // $flow-disable-line
   if (!cb && typeof Promise !== 'undefined') {
+    // 返回 一个promise 对象
     return new Promise(resolve => {
       _resolve = resolve
     })

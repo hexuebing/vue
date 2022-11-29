@@ -65,7 +65,9 @@ export function initState(vm: Component) {
     const ob = observe((vm._data = {}))
     ob && ob.vmCount++
   }
+  // 计算属性watcher
   if (opts.computed) initComputed(vm, opts.computed)
+  // 侦听器的watcher
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
   }
@@ -312,6 +314,7 @@ function initMethods(vm: Component, methods: Object) {
 function initWatch(vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
+    // 数组的话为每一个
     if (isArray(handler)) {
       for (let i = 0; i < handler.length; i++) {
         createWatcher(vm, key, handler[i])
@@ -328,10 +331,12 @@ function createWatcher(
   handler: any,
   options?: Object
 ) {
+  // 判断是否是原生的对象
   if (isPlainObject(handler)) {
     options = handler
     handler = handler.handler
   }
+  // 字符串的话，去methods中找到对应的处理函数
   if (typeof handler === 'string') {
     handler = vm[handler]
   }
@@ -374,19 +379,27 @@ export function stateMixin(Vue: typeof Component) {
     cb: any,
     options?: Record<string, any>
   ): Function {
+    // 获取Vue 实例this
     const vm: Component = this
+
+    // 如果是纯对象，执行 createWatcher 
     if (isPlainObject(cb)) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+    // 标记为用户的 watcher
     options.user = true
     const watcher = new Watcher(vm, expOrFn, cb, options)
+
+    // 判断是否立即执行
     if (options.immediate) {
       const info = `callback for immediate watcher "${watcher.expression}"`
       pushTarget()
       invokeWithErrorHandling(cb, vm, [watcher.value], vm, info)
       popTarget()
     }
+
+    // 返回取消监听的方法
     return function unwatchFn() {
       watcher.teardown()
     }
