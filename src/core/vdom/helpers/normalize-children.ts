@@ -37,7 +37,7 @@ export function normalizeChildren(children: any): Array<VNode> | undefined {
   return isPrimitive(children)
     ? [createTextVNode(children)]
     : isArray(children)
-    ? normalizeArrayChildren(children)
+    ? normalizeArrayChildren(children) // 拍平数组
     : undefined
 }
 

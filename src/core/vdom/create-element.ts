@@ -32,11 +32,13 @@ export function createElement(
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // 处理 实际没传第二个属性的情况，认为data是普通数据类型和数组的时候，实际就是没传data
   if (isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
     data = undefined
   }
+  // template 模版编译不会走这里
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE
   }
@@ -60,6 +62,9 @@ export function _createElement(
       )
     return createEmptyVNode()
   }
+
+  // 处理动态组件
+  // <component v-bind:is="currentTabComponent"></component>
   // object syntax in v-bind
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
@@ -68,6 +73,8 @@ export function _createElement(
     // in case of component :is set to falsy value
     return createEmptyVNode()
   }
+
+  // 判断key
   // warn against non-primitive key
   if (__DEV__ && isDef(data) && isDef(data.key) && !isPrimitive(data.key)) {
     warn(
@@ -82,15 +89,19 @@ export function _createElement(
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
+
   if (normalizationType === ALWAYS_NORMALIZE) {
+    // 返回一维数组，处理用户手写的render
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
+    // 把二维数组，转换成一维数组
     children = simpleNormalizeChildren(children)
   }
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
+    // 是否是 html 的保留标签
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       if (
@@ -116,6 +127,7 @@ export function _createElement(
       (!data || !data.pre) &&
       isDef((Ctor = resolveAsset(context.$options, 'components', tag)))
     ) {
+      // 自定义组件 查找自定义组件构造函数的声明，来创建组件
       // component
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
