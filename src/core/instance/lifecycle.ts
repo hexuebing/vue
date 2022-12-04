@@ -63,6 +63,7 @@ export function lifecycleMixin(Vue: typeof Component) {
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
+    
     // 是否是首次渲染
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)

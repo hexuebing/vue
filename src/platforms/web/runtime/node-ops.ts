@@ -7,6 +7,7 @@ export function createElement(tagName: string, vnode: VNode): Element {
     return elm
   }
   // false or null will remove the attribute but undefined will not
+  // 如果是select标签，且具有属性multiple，为其设置multiple
   if (
     vnode.data &&
     vnode.data.attrs &&

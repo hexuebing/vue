@@ -109,6 +109,7 @@ function baseSetAttr(el, key, value) {
   }
 }
 
+// 导出的是生命周期的钩子函数
 export default {
   create: updateAttrs,
   update: updateAttrs
