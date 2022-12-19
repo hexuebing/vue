@@ -95,6 +95,7 @@ export function setCurrentRenderingInstance(vm: Component) {
 }
 
 export function renderMixin(Vue: typeof Component) {
+  // 初始化_m/ _v ...方法
   // install runtime convenience helpers
   installRenderHelpers(Vue.prototype)
 

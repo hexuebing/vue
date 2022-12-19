@@ -70,6 +70,7 @@ Vue.prototype.$mount = function (
         mark('compile')
       }
 
+      // 把template转为render函数
       const { render, staticRenderFns } = compileToFunctions(
         template,
         {
@@ -91,6 +92,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 调用const mount = Vue.prototype.$mount保存下来的不带编译的mount
   return mount.call(this, el, hydrating)
 }
 

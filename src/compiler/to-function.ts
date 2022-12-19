@@ -26,6 +26,7 @@ export function createCompileToFunctionFn(compile: Function): Function {
     options?: CompilerOptions,
     vm?: Component
   ): CompiledFunctionResult {
+    // 克隆了一份vue的options，避免污染
     options = extend({}, options)
     const warn = options.warn || baseWarn
     delete options.warn
@@ -49,6 +50,8 @@ export function createCompileToFunctionFn(compile: Function): Function {
     }
 
     // check cache
+    // 1. 有缓存的时候直接取出缓存中的结果即可
+    // delimiters 是自定义的差值表达式的符号
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
@@ -56,7 +59,8 @@ export function createCompileToFunctionFn(compile: Function): Function {
       return cache[key]
     }
 
-    // compile
+    // compile 
+    // 2. 把模板编译为编译对象（render, staticRenderFns）,字符串形式的js代码
     const compiled = compile(template, options)
 
     // check compilation errors/tips
@@ -91,6 +95,8 @@ export function createCompileToFunctionFn(compile: Function): Function {
     // turn code into functions
     const res: any = {}
     const fnGenErrors: any[] = []
+
+    // 3. 将compiled.render 字符串形式的js代码 转换成Function对象
     res.render = createFunction(compiled.render, fnGenErrors)
     res.staticRenderFns = compiled.staticRenderFns.map(code => {
       return createFunction(code, fnGenErrors)
@@ -100,6 +106,7 @@ export function createCompileToFunctionFn(compile: Function): Function {
     // this should only happen if there is a bug in the compiler itself.
     // mostly for codegen development use
     /* istanbul ignore if */
+    // 打印错误信息
     if (__DEV__) {
       if ((!compiled.errors || !compiled.errors.length) && fnGenErrors.length) {
         warn(
@@ -114,6 +121,7 @@ export function createCompileToFunctionFn(compile: Function): Function {
       }
     }
 
+    // 4. 缓存并返回编译结果
     return (cache[key] = res)
   }
 }

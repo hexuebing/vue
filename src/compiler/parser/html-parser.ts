@@ -99,6 +99,7 @@ export function parseHTML(html, options: HTMLParserOptions) {
         }
 
         // http://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
+        // 是否是条件注释
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
 
@@ -110,12 +111,14 @@ export function parseHTML(html, options: HTMLParserOptions) {
 
         // Doctype:
         const doctypeMatch = html.match(doctype)
+        // 是否是文档注释
         if (doctypeMatch) {
           advance(doctypeMatch[0].length)
           continue
         }
 
         // End tag:
+        // 是否是结束标签
         const endTagMatch = html.match(endTag)
         if (endTagMatch) {
           const curIndex = index
@@ -286,6 +289,7 @@ export function parseHTML(html, options: HTMLParserOptions) {
     }
 
     if (options.start) {
+      // start方法
       options.start(tagName, attrs, unary, match.start, match.end)
     }
   }

@@ -4,12 +4,14 @@ import { detectErrors } from './error-detector'
 import { createCompileToFunctionFn } from './to-function'
 
 export function createCompilerCreator(baseCompile: Function): Function {
+  // baseOptions 平台相关的options
   return function createCompiler(baseOptions: CompilerOptions) {
     function compile(
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
       const finalOptions = Object.create(baseOptions)
+      // 编译中出现的错误和信息
       const errors: WarningMessage[] = []
       const tips: WarningMessage[] = []
 
@@ -21,6 +23,7 @@ export function createCompilerCreator(baseCompile: Function): Function {
         ;(tip ? tips : errors).push(msg)
       }
 
+      // 如果options存在的话就合并baseOptions和options
       if (options) {
         if (__DEV__ && options.outputSourceRange) {
           // $flow-disable-line
@@ -66,6 +69,7 @@ export function createCompilerCreator(baseCompile: Function): Function {
 
       finalOptions.warn = warn
 
+      // 模板编译的核心函数， {render, } render是字符串形式的代码
       const compiled = baseCompile(template.trim(), finalOptions)
       if (__DEV__) {
         detectErrors(compiled.ast, warn)
@@ -77,7 +81,7 @@ export function createCompilerCreator(baseCompile: Function): Function {
 
     return {
       compile,
-      compileToFunctions: createCompileToFunctionFn(compile)
+      compileToFunctions: createCompileToFunctionFn(compile) // 结果返回compileToFunctions函数
     }
   }
 }

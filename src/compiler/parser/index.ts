@@ -221,6 +221,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
     shouldKeepComment: options.comments,
     outputSourceRange: options.outputSourceRange,
+    // 解析到开始标签的时候调用
     start(tag, attrs, unary, start, end) {
       // check namespace.
       // inherit parent ns if there is one
@@ -233,6 +234,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         attrs = guardIESVGBug(attrs)
       }
 
+      // 创建ast对象
       let element: ASTElement = createASTElement(tag, attrs, currentParent)
       if (ns) {
         element.ns = ns
@@ -281,7 +283,8 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       }
 
       if (!inVPre) {
-        processPre(element)
+        // 处理指令
+        processPre(element) // 处理 v-pre
         if (element.pre) {
           inVPre = true
         }
@@ -293,6 +296,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         processRawAttrs(element)
       } else if (!element.processed) {
         // structural directives
+        // 处理指令
         processFor(element)
         processIf(element)
         processOnce(element)
