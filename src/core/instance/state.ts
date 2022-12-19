@@ -157,6 +157,7 @@ function initData(vm: Component) {
           vm
         )
     } else if (!isReserved(key)) { // 判断属性开头 _ / $
+      // 通过proxy函数将data上面的数据代理到vm上
       proxy(vm, `_data`, key)
     }
   }

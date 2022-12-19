@@ -68,6 +68,7 @@ export class Observer {
           ;(value as any).__proto__ = arrayMethods
           /* eslint-enable no-proto */
         } else {
+          // 如果不支持__proto__属性，直接覆盖原生的方法
           for (let i = 0, l = arrayKeys.length; i < l; i++) {
             const key = arrayKeys[i]
             def(value, key, arrayMethods[key])
@@ -116,7 +117,7 @@ export function observe(
   shallow?: boolean,
   ssrMockReactivity?: boolean
 ): Observer | void {
-  // 如果 value 有 __ob__ 属性则返回
+  // 如果 value 有 __ob__ 属性则返回之前创建的Observer实例
   if (value && hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     return value.__ob__
   }
