@@ -20,7 +20,7 @@
       template: `<div>
         <button @click="insert">insert</button>
         <ul>
-          <li v-for="value in arr">{{arr}}</li>
+          <li v-for="value in arr" :key="value">{{value}}</li>
         </ul>
       </div>`,
       methods: {
