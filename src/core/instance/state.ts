@@ -225,6 +225,7 @@ function initComputed(vm: Component, computed: Object) {
   }
 }
 
+// 把计算属性的key挂载到vm对象下
 export function defineComputed(
   target: any,
   key: string,
@@ -236,12 +237,13 @@ export function defineComputed(
       ? createComputedGetter(key)
       : createGetterInvoker(userDef)
     sharedPropertyDefinition.set = noop
-  } else {
+  } else { // 是对象的形式
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
         : createGetterInvoker(userDef.get)
       : noop
+    // 如果有设置set方法则直接使用，否则赋值空函数
     sharedPropertyDefinition.set = userDef.set || noop
   }
   if (__DEV__ && sharedPropertyDefinition.set === noop) {
@@ -255,11 +257,15 @@ export function defineComputed(
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
+//计算属性的getter 获取计算属性的值时会调用
 function createComputedGetter(key) {
   return function computedGetter() {
+    // 获取相应的watcher对象
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
+      // watcher.dirty 参数决定了计算属性值是否需要重新计算，默认值为true，即第一次时会调用一次
       if (watcher.dirty) {
+        /*每次执行之后watcher.dirty会设置为false，只要依赖的data值改变时才会触发watcher.dirty为true,从而获取值时从新计算*/
         watcher.evaluate()
       }
       if (Dep.target) {

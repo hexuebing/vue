@@ -202,6 +202,7 @@ export default class Watcher implements DepTarget {
    * Will be called when a dependency changes.
    */
   update() {
+    // lazy 为true表示是computed的watcher，则将dirty设置为true，当访问computed的时候将触发重新计算
     /* istanbul ignore else */
     if (this.lazy) {
       this.dirty = true
